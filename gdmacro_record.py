@@ -1,5 +1,5 @@
 from pynput import mouse
-import pyautogui
+import keyboard
 import sys
 import time
 
@@ -7,7 +7,7 @@ mouse_down = False
 
 def wait_until(predicate):
     while not predicate():
-        time.sleep(0.01)
+        time.sleep(0.1)
 
 def on_click(x, y, _button, pressed):
     global mouse_down
