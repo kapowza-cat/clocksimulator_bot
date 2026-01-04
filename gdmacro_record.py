@@ -92,7 +92,7 @@ else:
 
     print("Starting playback...")
     start = time.perf_counter()
-    start = start - 0.1 #manual offset
+    start = start - 0 #manual offset
 
     for i, t in enumerate(recording):
         if keyboard.is_pressed('e'):
@@ -107,8 +107,8 @@ else:
             time.sleep(min(0.005, target - now))
 
         if i % 2 == 0:
-            print("SPACE DOWN", time.perf_counter() - start)
             kb.press(Key.space)
+            print(i, " SPACE DOWN", time.perf_counter() - start)
         else:
-            print("SPACE UP")
             kb.release(Key.space)
+            print(i, " SPACE UP")
