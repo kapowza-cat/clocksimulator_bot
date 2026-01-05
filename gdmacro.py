@@ -5,6 +5,7 @@ import sys
 import time
 import os
 import threading
+import pyautogui
 
 kb = Controller()
 mouse_pressed = threading.Event()
@@ -107,8 +108,8 @@ else:
             time.sleep(min(0.005, target - now))
 
         if i % 2 == 0:
-            kb.press(Key.space)
+            pyautogui.keyDown('space')
             print(i, " SPACE DOWN", time.perf_counter() - start)
         else:
-            kb.release(Key.space)
+            pyautogui.keyUp('space')
             print(i, " SPACE UP")
