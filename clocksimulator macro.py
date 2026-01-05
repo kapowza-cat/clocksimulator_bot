@@ -6,19 +6,15 @@ print("Program started")
 time.sleep(2)
 screenWidth, screenHeight = pyautogui.size()
 pyautogui.click(900,825)
-time.sleep(2.3)
+time.sleep(2.32)
 print("click 1")
-pyautogui.keyDown('space')
-pyautogui.keyUp('space')
-
-time.sleep(0.8)
-print("click 2")
 pyautogui.keyDown('space')
 pyautogui.keyUp('space')
 
 # Schedule clicks based on elapsed time since start to avoid drift.
 start_time = time.time()
-interval = 0.1 # seconds between clicks
+start_time -= 0.2
+interval = 1 # seconds between clicks
 next_click_time = start_time + interval
 
 try:
