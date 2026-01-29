@@ -1,43 +1,41 @@
-from pynput import mouse
-from pynput.keyboard import Controller, Key
+import mouse
 import keyboard
 import sys
 import time
 import os
-import threading
 import pyautogui
 
-kb = Controller()
-mouse_pressed = threading.Event()
+space_pressed = False
+space_event = None
 
-def wait_until(predicate):
-    while not predicate():
-        if keyboard.is_pressed('e'):
-            return False
-        time.sleep(0.005)
-    return True
+def on_space_press(event):
+    global space_pressed, space_event
+    if event.name == 'space' and not event.is_keypad:
+        if event.event_type == 'down':
+            space_pressed = True
+            space_event = time.perf_counter()
+        elif event.event_type == 'up':
+            space_pressed = False
 
-def on_click(x, y, _button, pressed):
-    if pressed:
-        mouse_pressed.set()
-    else:
-        mouse_pressed.clear()
-
-listener = mouse.Listener(on_click=on_click)
-listener.start()
+keyboard.hook(on_space_press)
 
 ask = input("Do you wish to record or play back? [r/p] ")
 
 if ask.lower() == 'r':
     while True:
-        print('Ready. Recording will start on mouse release.')
+        print('Ready. Recording will start on spacebar press.')
         print('Press E at any time to stop.')
         print('Press R at any time to reset and restart.')
 
-        if not wait_until(mouse_pressed.is_set):
-            break
-        if not wait_until(lambda: not mouse_pressed.is_set()):
-            break
+        while not space_pressed:
+            if keyboard.is_pressed('e'):
+                sys.exit()
+            time.sleep(0.001)
+        
+        while space_pressed:
+            if keyboard.is_pressed('e'):
+                sys.exit()
+            time.sleep(0.001)
 
         recording = []
         start = time.perf_counter()
@@ -50,13 +48,21 @@ if ask.lower() == 'r':
             if keyboard.is_pressed('r'):
                 break
 
-            if not wait_until(mouse_pressed.is_set):
+            while not space_pressed:
+                if keyboard.is_pressed('e') or keyboard.is_pressed('r'):
+                    break
+                time.sleep(0.001)
+            
+            if keyboard.is_pressed('e') or keyboard.is_pressed('r'):
                 break
+            
             recording.append(time.perf_counter() - start)
-            print("CLICK")
+            print("PRESS")
 
-            if not wait_until(lambda: not mouse_pressed.is_set()):
-                break
+            while space_pressed:
+                if keyboard.is_pressed('e') or keyboard.is_pressed('r'):
+                    break
+                time.sleep(0.001)
             recording.append(time.perf_counter() - start)
             print("RELEASE")
 
@@ -85,11 +91,14 @@ else:
     with open(filepath, "r") as f:
         recording = [float(line.strip()) for line in f if line.strip()]
 
-    print("Loaded macro. Will begin playback after next click")
+    print("Loaded macro. Will begin playback after spacebar press")
     print("Press E at any time to stop.")
 
-    wait_until(mouse_pressed.is_set)
-    wait_until(lambda: not mouse_pressed.is_set())
+    while not space_pressed:
+        time.sleep(0.001)
+    
+    while space_pressed:
+        time.sleep(0.001)
 
     print("Starting playback...")
     start = time.perf_counter()
@@ -97,7 +106,7 @@ else:
 
     for i, t in enumerate(recording):
         if keyboard.is_pressed('e'):
-            kb.release(Key.space)
+            pyautogui.keyUp('space')
             sys.exit()
 
         target = start + t
